@@ -1,0 +1,10 @@
+.editor-box .ProseMirror {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+.compose-header.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
