@@ -1,15 +1,26 @@
-import React from "react"
-import Loginpage from "./pages/Loginpage"
-import ComposeMail from "./components/composeMail"
-import Inbox from "./components/Inbox"
-import { ToastContainer } from "react-toastify"
-const App = () => {
-  return (<>
-    {/* <Loginpage /> */}
-    <ComposeMail  senderEmail="admin@gmail.com"/>
-    <Inbox userEmail="admin@gmail.com"/>
-    <ToastContainer/>
-  </>)
-}
+import { Route, Routes } from "react-router-dom";
+import Loginpage from "./pages/Loginpage";
+import ComposeMail from "./components/ComposeMail";
+import Inbox from "./components/Inbox";
+import MainNavbar from "./components/MainNavbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 
-export default App
+const App = () => {
+
+  return (
+    <>
+      <MainNavbar />
+      <Routes>
+        <Route path="/login" element={<Loginpage/>} />
+        <Route path="/" element={<Inbox />} />
+        <Route path="/composeMail" element={<ComposeMail />} />
+      </Routes>
+      <ToastContainer />
+    </>
+  );
+};
+
+export default App;
+

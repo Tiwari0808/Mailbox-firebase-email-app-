@@ -1,58 +1,52 @@
 import { useState } from "react";
 import { db } from "../firebase";
-import { v4 as uuidv4 } from "uuid";
-import { ref, set } from "firebase/database";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Highlight from "@tiptap/extension-highlight";
-import TextStyle from "@tiptap/extension-text-style";
-import { toast } from 'react-toastify';
+import { ref, push, set } from "firebase/database";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import './ComposeMail.css';
-import { encodeEmail } from "./encodeEmail";
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Row,
+  Spinner,
+} from "react-bootstrap";
+import { FaPaperPlane } from "react-icons/fa6";
 
-const ComposeMail = ({ senderEmail }) => {
+
+const encodeEmail = (email) =>
+  email.replace(/\./g, "_dot_").replace(/@/g, "_at_");
+
+const ComposeMail = () => {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [attemptedSend, setAttemptedSend] = useState(false);
   const navigate = useNavigate();
 
-  const editor = useEditor({
-    extensions: [StarterKit, Highlight, TextStyle],
-    content: "",
-  });
+  const senderEmail = localStorage.getItem("user_email");
+  const senderUid = localStorage.getItem("user_id");
 
   const resetForm = () => {
     setTo("");
     setSubject("");
-    editor.commands.clearContent();
-    setAttemptedSend(false);
+    setBody("");
   };
 
   const sendMail = async (e) => {
     e.preventDefault();
-    setAttemptedSend(true);
 
-    if (!to || !subject || !editor?.getText()?.trim()) {
-      if (!to) toast.error("Recipient is required");
-      else if (!subject) toast.error("Subject is required");
-      else toast.error("Email content cannot be empty");
+    if (!to || !subject || !body.trim()) {
+      toast.error("All fields are required");
       return;
     }
 
-    setIsSending(true);
-
     try {
-      const body = editor.getHTML();
-      const id = uuidv4();
+      setIsSending(true);
 
       const encodedTo = encodeEmail(to);
-      const encodedSender = encodeEmail(senderEmail);
-
       const mail = {
-        id,
         from: senderEmail,
         to,
         subject,
@@ -60,11 +54,14 @@ const ComposeMail = ({ senderEmail }) => {
         timestamp: new Date().toISOString(),
       };
 
-      await set(ref(db, `mails/${encodedTo}/inbox/${id}`), mail);
-      await set(ref(db, `mails/${encodedSender}/sent/${id}`), mail);
+      const id = Date.now().toString();  
+
+      await set(ref(db,`mails/${encodedTo}/inbox/${id}`),mail);
+      await set(ref(db,`mails/${senderUid}/sent/${id}`),mail);
 
       toast.success("Email sent successfully!");
-      navigate("/inbox");
+      resetForm();
+      navigate("/");
     } catch (error) {
       toast.error("Failed to send email. Please try again.");
       console.error("Send error:", error);
@@ -74,38 +71,32 @@ const ComposeMail = ({ senderEmail }) => {
   };
 
   return (
-    <Container className="compose-container">
+    <Container className="compose-container mt-5">
       <Row className="justify-content-center">
         <Col lg={8} xl={9}>
           <Card className="compose-card">
-            <Card.Header className="compose-header">
+            <Card.Header className="d-flex justify-content-between align-items-center">
               <h5>New Message</h5>
-              <div className="compose-actions">
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={resetForm}
-                  disabled={isSending}
-                >
-                  Discard
-                </Button>
-              </div>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={resetForm}
+                disabled={isSending}
+              >
+                Discard
+              </Button>
             </Card.Header>
 
             <Card.Body>
               <Form onSubmit={sendMail}>
                 <Form.Group className="mb-3">
                   <Form.Control
-                    autoFocus
+                    type="email"
                     placeholder="To"
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
-                    isInvalid={attemptedSend && !to}
                     required
                   />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a recipient
-                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group className="mb-3">
@@ -113,30 +104,28 @@ const ComposeMail = ({ senderEmail }) => {
                     placeholder="Subject"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    isInvalid={attemptedSend && !subject}
                     required
                   />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a subject
-                  </Form.Control.Feedback>
                 </Form.Group>
 
-                <div className="editor-box mb-3">
-                  <EditorContent editor={editor} />
-                </div>
+                <Form.Group className="mb-3">
+                  <Form.Control
+                    as="textarea"
+                    rows={6}
+                    placeholder="Write your message..."
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    required
+                  />
+                </Form.Group>
 
                 <div className="compose-footer">
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={isSending}
-                  >
+                  <Button variant="primary" type="submit" disabled={isSending}>
                     {isSending ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" />
-                        Sending...
-                      </>
-                    ) : "Send"}
+                      <Spinner animation="border" size="sm" />
+                    ) : (
+                      <FaPaperPlane />
+                    )}
                   </Button>
                 </div>
               </Form>
@@ -149,5 +138,7 @@ const ComposeMail = ({ senderEmail }) => {
 };
 
 export default ComposeMail;
+
+
 
 
