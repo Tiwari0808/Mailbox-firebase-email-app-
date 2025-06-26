@@ -12,7 +12,8 @@ const MainNavbar = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav>
               <Nav.Link as={Link} to={'/'}>Inbox</Nav.Link>
-              <Nav.Link as={Link} to={'/composeMail'}>Sent</Nav.Link>
+              <Nav.Link as={Link} to={'/composeMail'}>Send</Nav.Link>
+              <Nav.Link as={Link} to={'/sentmail'}>Sent Mails</Nav.Link>
               <Nav.Link as={Link} to={'/login'}>Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse>

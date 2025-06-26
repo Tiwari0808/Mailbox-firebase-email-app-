@@ -1,6 +1,8 @@
+import { ref, set } from 'firebase/database';
 import { useRef, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
 
 const Loginpage = () => {
     const [isLogin, setisLogin] = useState(false);
@@ -42,7 +44,12 @@ const Loginpage = () => {
             const user_email = data.email;
             localStorage.setItem('user_id',user_id);
             localStorage.setItem('user_email',user_email);
-
+            
+            if(!isLogin){
+                await set(ref(db,`users/${user_id}`),{
+                    email:user_email
+                })
+            }
 
             if (res.ok) {
                 navigate('/')

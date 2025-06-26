@@ -1,25 +1,44 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { ref, onValue } from "firebase/database";
-import { encodeEmail } from "./encodeEmail";
-import { Accordion, Card, Col, Container, Row } from "react-bootstrap";
+import { ref, onValue, get } from "firebase/database";
+import { Accordion, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 
 const Inbox = () => {
   const [mails, setMails] = useState([]);
-  const userEmail = localStorage.getItem('user_email');
+  const [loading, setLoading] = useState(true);
+  const userUid = localStorage.getItem("user_id");
+
   useEffect(() => {
-    if (!userEmail) return;
+    if (!userUid) return;
 
-    const encodedEmail = encodeEmail(userEmail);
-    const inboxRef = ref(db, `mails/${encodedEmail}/inbox`);
+    const inboxRef = ref(db, `userMails/${userUid}/inbox`);
 
-    const unsubscribe = onValue(inboxRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      setMails(Object.values(data));
+    const unsubscribe = onValue(inboxRef, async (snapshot) => {
+      const inboxData = snapshot.val();
+      if (!inboxData) {
+        setMails([]);
+        setLoading(false);
+        return;
+      }
+
+      const mailIds = Object.keys(inboxData);
+      const fetchedMails = [];
+
+      for (const id of mailIds) {
+        const mailSnap = await get(ref(db, `mails/${id}`));
+        if (mailSnap.exists()) {
+          fetchedMails.push(mailSnap.val());
+        }
+      }
+
+      // Sort newest first
+      fetchedMails.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setMails(fetchedMails);
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [userEmail]);
+  }, [userUid]);
 
   return (
     <Container className="my-4">
@@ -29,7 +48,9 @@ const Inbox = () => {
             <Card.Body>
               <Card.Title className="mb-4">📥 Inbox</Card.Title>
 
-              {mails.length === 0 ? (
+              {loading ? (
+                <div className="text-center"><Spinner animation="border" /></div>
+              ) : mails.length === 0 ? (
                 <p className="text-muted">No mails found.</p>
               ) : (
                 <Accordion defaultActiveKey="0" alwaysOpen>
@@ -49,10 +70,7 @@ const Inbox = () => {
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        <div
-                          className="email-body"
-                          dangerouslySetInnerHTML={{ __html: mail.body }}
-                        />
+                        <p>{mail.body}</p>
                       </Accordion.Body>
                     </Accordion.Item>
                   ))}
@@ -67,5 +85,6 @@ const Inbox = () => {
 };
 
 export default Inbox;
+ 
 
 

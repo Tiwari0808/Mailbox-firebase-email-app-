@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { ref, push, set } from "firebase/database";
+import { ref, set } from "firebase/database";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,16 +13,15 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { FaPaperPlane } from "react-icons/fa6";
-
-
-const encodeEmail = (email) =>
-  email.replace(/\./g, "_dot_").replace(/@/g, "_at_");
+import { getRecieverUid } from "../store/ReceiverUid";
 
 const ComposeMail = () => {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isValidRecipient, setIsValidRecipient] = useState(null); // null | true | false
+  const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
 
   const senderEmail = localStorage.getItem("user_email");
@@ -32,7 +31,23 @@ const ComposeMail = () => {
     setTo("");
     setSubject("");
     setBody("");
+    setIsValidRecipient(null);
   };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (!to || !to.includes("@") || !to.includes('.')) {
+        setIsValidRecipient(null);
+        return;
+      }
+      setIsChecking(true);
+      const uid = await getRecieverUid(to);
+      setIsValidRecipient(!!uid);
+      setIsChecking(false);
+    }, 500); // debounce time
+
+    return () => clearTimeout(delayDebounce);
+  }, [to]);
 
   const sendMail = async (e) => {
     e.preventDefault();
@@ -45,8 +60,9 @@ const ComposeMail = () => {
     try {
       setIsSending(true);
 
-      const encodedTo = encodeEmail(to);
+      const id = Date.now().toString();  
       const mail = {
+        id,
         from: senderEmail,
         to,
         subject,
@@ -54,10 +70,16 @@ const ComposeMail = () => {
         timestamp: new Date().toISOString(),
       };
 
-      const id = Date.now().toString();  
+      const receiverUid = await getRecieverUid(to);
+      if (!receiverUid) {
+        toast.error("Recipient is not a registered user");
+        setIsSending(false);
+        return;
+      }
 
-      await set(ref(db,`mails/${encodedTo}/inbox/${id}`),mail);
-      await set(ref(db,`mails/${senderUid}/sent/${id}`),mail);
+      await set(ref(db, `mails/${mail.id}`), mail);
+      await set(ref(db, `userMails/${senderUid}/sent/${mail.id}`), true);
+      await set(ref(db, `userMails/${receiverUid}/inbox/${mail.id}`), true);
 
       toast.success("Email sent successfully!");
       resetForm();
@@ -89,14 +111,23 @@ const ComposeMail = () => {
 
             <Card.Body>
               <Form onSubmit={sendMail}>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-2">
                   <Form.Control
                     type="email"
                     placeholder="To"
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
                     required
+                    isInvalid={isValidRecipient === false}
+                    isValid={isValidRecipient === true}
                   />
+                  {isChecking && <Form.Text className="text-muted">Checking user...</Form.Text>}
+                  {!isChecking && isValidRecipient === false && (
+                    <Form.Text className="text-danger">❌ Recipient not found</Form.Text>
+                  )}
+                  {!isChecking && isValidRecipient === true && (
+                    <Form.Text className="text-success">✅ Valid recipient</Form.Text>
+                  )}
                 </Form.Group>
 
                 <Form.Group className="mb-3">
@@ -138,6 +169,7 @@ const ComposeMail = () => {
 };
 
 export default ComposeMail;
+
 
 
 

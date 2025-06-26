@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import Loginpage from "./pages/Loginpage";
-import ComposeMail from "./components/ComposeMail";
-import Inbox from "./components/Inbox";
+import ComposeMail from "./pages/ComposeMail";
+import Inbox from "./pages/Inbox";
 import MainNavbar from "./components/MainNavbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import SentMail from "./pages/SentMail";
 
 const App = () => {
 
@@ -16,6 +16,7 @@ const App = () => {
         <Route path="/login" element={<Loginpage/>} />
         <Route path="/" element={<Inbox />} />
         <Route path="/composeMail" element={<ComposeMail />} />
+        <Route path="/sentMail" element={<SentMail/>} />
       </Routes>
       <ToastContainer />
     </>
