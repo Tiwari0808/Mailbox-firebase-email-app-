@@ -1,5 +1,5 @@
 import { get, ref } from "firebase/database"
-import { db } from "../firebase"
+import { db } from "./firebase"
 
 
 export const getRecieverUid = async (email) => {

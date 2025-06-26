@@ -1,95 +1,39 @@
-import { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { ref, set } from "firebase/database";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { FaPaperPlane } from "react-icons/fa6";
-import { getRecieverUid } from "../store/ReceiverUid";
+import { useSendMail } from "../hooks/useSendMail";
 
 const ComposeMail = () => {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [isValidRecipient, setIsValidRecipient] = useState(null); // null | true | false
-  const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
 
   const senderEmail = localStorage.getItem("user_email");
   const senderUid = localStorage.getItem("user_id");
 
+  const { sendMail, isSending } = useSendMail();
+
   const resetForm = () => {
     setTo("");
     setSubject("");
     setBody("");
-    setIsValidRecipient(null);
   };
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(async () => {
-      if (!to || !to.includes("@") || !to.includes('.')) {
-        setIsValidRecipient(null);
-        return;
-      }
-      setIsChecking(true);
-      const uid = await getRecieverUid(to);
-      setIsValidRecipient(!!uid);
-      setIsChecking(false);
-    }, 500); // debounce time
-
-    return () => clearTimeout(delayDebounce);
-  }, [to]);
-
-  const sendMail = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!to || !subject || !body.trim()) {
-      toast.error("All fields are required");
-      return;
-    }
-
-    try {
-      setIsSending(true);
-
-      const id = Date.now().toString();  
-      const mail = {
-        id,
-        from: senderEmail,
-        to,
-        subject,
-        body,
-        timestamp: new Date().toISOString(),
-      };
-
-      const receiverUid = await getRecieverUid(to);
-      if (!receiverUid) {
-        toast.error("Recipient is not a registered user");
-        setIsSending(false);
-        return;
-      }
-
-      await set(ref(db, `mails/${mail.id}`), mail);
-      await set(ref(db, `userMails/${senderUid}/sent/${mail.id}`), true);
-      await set(ref(db, `userMails/${receiverUid}/inbox/${mail.id}`), true);
-
-      toast.success("Email sent successfully!");
-      resetForm();
-      navigate("/");
-    } catch (error) {
-      toast.error("Failed to send email. Please try again.");
-      console.error("Send error:", error);
-    } finally {
-      setIsSending(false);
-    }
+    sendMail({
+      to,
+      subject,
+      body,
+      senderEmail,
+      senderUid,
+      onSuccess: () => {
+        resetForm();
+        navigate("/");
+      },
+    });
   };
 
   return (
@@ -110,24 +54,15 @@ const ComposeMail = () => {
             </Card.Header>
 
             <Card.Body>
-              <Form onSubmit={sendMail}>
-                <Form.Group className="mb-2">
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
                   <Form.Control
                     type="email"
                     placeholder="To"
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
                     required
-                    isInvalid={isValidRecipient === false}
-                    isValid={isValidRecipient === true}
                   />
-                  {isChecking && <Form.Text className="text-muted">Checking user...</Form.Text>}
-                  {!isChecking && isValidRecipient === false && (
-                    <Form.Text className="text-danger">❌ Recipient not found</Form.Text>
-                  )}
-                  {!isChecking && isValidRecipient === true && (
-                    <Form.Text className="text-success">✅ Valid recipient</Form.Text>
-                  )}
                 </Form.Group>
 
                 <Form.Group className="mb-3">
