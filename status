@@ -1,0 +1,53 @@
+[33mcommit 6fdee9d857607397b80bf3f2bbfd3ed0a8dfb8ba[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Thu Jun 26 12:51:11 2025 +0530
+
+    created and used custom hooks
+
+[33mcommit 80e9a06a03c7229b23d6da70f75e12582918a399[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Thu Jun 26 12:03:28 2025 +0530
+
+    added delete mail functionality in inbox
+
+[33mcommit adcf1473aee29b9a026a7dbaaad148ef4b87b402[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Thu Jun 26 11:50:04 2025 +0530
+
+    fixed api exposure
+
+[33mcommit b1ffa1ad6cecfb3429d7f795b59087a7d575592c[m
+Author: Divyanshu Tiwari <121613848+Tiwari0808@users.noreply.github.com>
+Date:   Thu Jun 26 11:40:19 2025 +0530
+
+    Update README.md
+
+[33mcommit a58c03d8803576802a2501846b44d5b00d3b82cb[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Thu Jun 26 11:30:49 2025 +0530
+
+    optimized logic and implemented SentMail page
+
+[33mcommit 2fb4b06dc1f394c7de12f2e01a9955082615f43a[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Thu Jun 26 03:37:21 2025 +0530
+
+    fixing and optimizing the logics in all the files
+
+[33mcommit a813ff59493c6b435dffe9c6f11dfb391276f2cb[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Wed Jun 25 01:58:56 2025 +0530
+
+    implemented compose/send email and inbox functionality in app
+
+[33mcommit 9e8622887baea0e3b4b9d280aef530adcc48966d[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Tue Jun 24 13:53:05 2025 +0530
+
+    implement Firebase login with token storage and welcome screen UI
+
+[33mcommit e9fc105b676f43328d6ad64ebad553a8a3468392[m
+Author: Divyanshu <divyanshutiwari173@gmail.com>
+Date:   Tue Jun 24 01:23:59 2025 +0530
+
+    Created Loginpage.jsx component and Added login/signup toggle form with validation using React-Bootstrap

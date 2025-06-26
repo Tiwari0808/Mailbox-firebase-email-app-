@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
 import { ref, onValue, get } from "firebase/database";
 import { Accordion, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { db } from "../store/firebase";
 
 const SentMail = () => {
   const [mails, setMails] = useState([]);

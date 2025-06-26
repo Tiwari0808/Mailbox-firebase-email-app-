@@ -4,6 +4,7 @@ import { Button, Card, Col, Container, Form, Row, Spinner } from "react-bootstra
 import { FaPaperPlane } from "react-icons/fa6";
 import { useSendMail } from "../hooks/useSendMail";
 
+
 const ComposeMail = () => {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
@@ -13,7 +14,7 @@ const ComposeMail = () => {
   const senderEmail = localStorage.getItem("user_email");
   const senderUid = localStorage.getItem("user_id");
 
-  const { sendMail, isSending } = useSendMail();
+  const { sendMail, isSending } = useSendMail()
 
   const resetForm = () => {
     setTo("");

@@ -6,6 +6,7 @@ import MainNavbar from "./components/MainNavbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SentMail from "./pages/SentMail";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
 
@@ -14,9 +15,9 @@ const App = () => {
       <MainNavbar />
       <Routes>
         <Route path="/login" element={<Loginpage/>} />
-        <Route path="/" element={<Inbox />} />
-        <Route path="/composeMail" element={<ComposeMail />} />
-        <Route path="/sentMail" element={<SentMail/>} />
+        <Route path="/" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+        <Route path="/composeMail" element={<ProtectedRoute><ComposeMail /></ProtectedRoute>} />
+        <Route path="/sentMail" element={<ProtectedRoute><SentMail/></ProtectedRoute>} />
       </Routes>
       <ToastContainer />
     </>

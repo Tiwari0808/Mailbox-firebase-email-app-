@@ -2,7 +2,7 @@ import { ref, set } from 'firebase/database';
 import { useRef, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db } from '../store/firebase';
 
 const Loginpage = () => {
     const [isLogin, setisLogin] = useState(false);

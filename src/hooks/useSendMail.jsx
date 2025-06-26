@@ -1,10 +1,10 @@
-// src/hooks/useSendMail.js
 import { useState } from "react";
 import { ref, set } from "firebase/database";
-import { db } from "../firebase";
-import { getRecieverUid } from "../pages/store/ReceiverUid";
+
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { db } from "../store/firebase";
+import { getRecieverUid } from "../store/ReceiverUid";
 
 export const useSendMail = () => {
   const [isSending, setIsSending] = useState(false);
