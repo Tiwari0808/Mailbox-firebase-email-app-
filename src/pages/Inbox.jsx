@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { ref, onValue, get } from "firebase/database";
-import { Accordion, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { ref, onValue, get, remove } from "firebase/database";
+import { Accordion, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 
 const Inbox = () => {
   const [mails, setMails] = useState([]);
@@ -31,7 +31,6 @@ const Inbox = () => {
         }
       }
 
-      // Sort newest first
       fetchedMails.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setMails(fetchedMails);
       setLoading(false);
@@ -39,6 +38,15 @@ const Inbox = () => {
 
     return () => unsubscribe();
   }, [userUid]);
+
+  const handleDelete = async (mailId) => {
+    try {
+      await remove(ref(db, `userMails/${userUid}/inbox/${mailId}`));
+      setMails((prev) => prev.filter((mail) => mail.id !== mailId));
+    } catch (error) {
+      console.error("Failed to delete mail:", error);
+    }
+  };
 
   return (
     <Container className="my-4">
@@ -49,7 +57,7 @@ const Inbox = () => {
               <Card.Title className="mb-4">📥 Inbox</Card.Title>
 
               {loading ? (
-                <div className="text-center"><Spinner animation="border" /></div>
+                <Spinner animation="border" />
               ) : mails.length === 0 ? (
                 <p className="text-muted">No mails found.</p>
               ) : (
@@ -57,20 +65,27 @@ const Inbox = () => {
                   {mails.map((mail, index) => (
                     <Accordion.Item eventKey={String(index)} key={mail.id}>
                       <Accordion.Header>
-                        <div className="w-100 d-flex flex-column">
-                          <div className="d-flex justify-content-between">
+                        <div className="w-100 d-flex justify-content-between align-items-center">
+                          <div className="flex-grow-1">
                             <strong className="text-truncate">{mail.subject}</strong>
-                            <small className="text-muted">
-                              {new Date(mail.timestamp).toLocaleString()}
-                            </small>
+                            <div className="text-muted small">From: {mail.from}</div>
                           </div>
-                          <small className="text-muted text-truncate">
-                            From: {mail.from}
+                          <small className="text-muted ms-2">
+                            {new Date(mail.timestamp).toLocaleString()}
                           </small>
                         </div>
                       </Accordion.Header>
                       <Accordion.Body>
-                        <p>{mail.body}</p>
+                        <div dangerouslySetInnerHTML={{ __html: mail.body }} />
+                        <div className="text-end mt-3">
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleDelete(mail.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </Accordion.Body>
                     </Accordion.Item>
                   ))}
@@ -85,6 +100,7 @@ const Inbox = () => {
 };
 
 export default Inbox;
+
  
 
 
