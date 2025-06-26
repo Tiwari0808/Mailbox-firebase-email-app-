@@ -8,7 +8,7 @@ import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   databaseURL: "https://mail-box-client-7d600-default-rtdb.firebaseio.com",
-  apiKey: "AIzaSyDgWsZEMu5cguQm33Qy0mn-YuJBBSrB6uE",
+  apiKey: import.meta.env.apikey,
   authDomain: "mail-box-client-7d600.firebaseapp.com",
   projectId: "mail-box-client-7d600",
   storageBucket: "mail-box-client-7d600.firebasestorage.app",
