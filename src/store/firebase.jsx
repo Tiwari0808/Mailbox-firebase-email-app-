@@ -1,14 +1,10 @@
 
-// // import { initializeApp } from "firebase/app";
-// import { initializeApp } from "firebase/app";
-// import { getDatabase } from "firebase/database";
-
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   databaseURL: "https://mail-box-client-7d600-default-rtdb.firebaseio.com",
-  apiKey: import.meta.env.apikey,
+  apiKey: import.meta.env.VITE_API_KEY,
   authDomain: "mail-box-client-7d600.firebaseapp.com",
   projectId: "mail-box-client-7d600",
   storageBucket: "mail-box-client-7d600.firebasestorage.app",
@@ -18,5 +14,4 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
-// const app = initializeApp(firebaseConfig);
-// export const db = getDatabase(app);
+

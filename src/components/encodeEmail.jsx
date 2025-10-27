@@ -1,4 +1,4 @@
 export const encodeEmail = (email) => {
-  if (!email) return ""; // or throw new Error("Invalid email")
+  if (!email) return "";
   return email.replace(/\./g, "_");
 };

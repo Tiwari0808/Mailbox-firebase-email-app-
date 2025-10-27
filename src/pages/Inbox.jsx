@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-
 import { ref, onValue, get, remove } from "firebase/database";
-import { Accordion, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import { db } from "../store/firebase";
-
+import { FaTrash } from "react-icons/fa";
 
 const Inbox = () => {
   const [mails, setMails] = useState([]);
@@ -51,58 +49,58 @@ const Inbox = () => {
   };
 
   return (
-    <Container className="my-4">
-      <Row className="justify-content-center">
-        <Col lg={12}>
-          <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title className="mb-4">📥 Inbox</Card.Title>
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-semibold text-blue-700 mb-6 flex items-center gap-2">
+        📥 Inbox
+      </h1>
 
-              {loading ? (
-                <Spinner animation="border" />
-              ) : mails.length === 0 ? (
-                <p className="text-muted">No mails found.</p>
-              ) : (
-                <Accordion defaultActiveKey="0" alwaysOpen>
-                  {mails.map((mail, index) => (
-                    <Accordion.Item eventKey={String(index)} key={mail.id}>
-                      <Accordion.Header>
-                        <div className="w-100 d-flex justify-content-between align-items-center">
-                          <div className="flex-grow-1">
-                            <strong className="text-truncate">{mail.subject}</strong>
-                            <div className="text-muted small">From: {mail.from}</div>
-                          </div>
-                          <small className="text-muted ms-2">
-                            {new Date(mail.timestamp).toLocaleString()}
-                          </small>
-                        </div>
-                      </Accordion.Header>
-                      <Accordion.Body>
-                        <div dangerouslySetInnerHTML={{ __html: mail.body }} />
-                        <div className="text-end mt-3">
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleDelete(mail.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  ))}
-                </Accordion>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="w-6 h-6 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : mails.length === 0 ? (
+        <p className="text-gray-500 text-center">No mails found.</p>
+      ) : (
+        <div className="space-y-4">
+          {mails.map((mail) => (
+            <div
+              key={mail.id}
+              className="bg-white shadow-sm rounded-lg border border-gray-200"
+            >
+              <details className="group open:bg-gray-50 transition">
+                <summary className="flex items-center justify-between px-5 py-3 cursor-pointer list-none group-open:border-b">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-lg text-gray-800 truncate">
+                      {mail.subject}
+                    </span>
+                    <span className="text-sm text-gray-500">From: {mail.from}</span>
+                  </div>
+                  <div className="text-sm text-gray-400 ml-4">
+                    {new Date(mail.timestamp).toLocaleString()}
+                  </div>
+                </summary>
+
+                <div className="px-5 py-4 border-t text-sm text-gray-700">
+                  <div
+                    className="mb-4"
+                    dangerouslySetInnerHTML={{ __html: mail.body }}
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => handleDelete(mail.id)}
+                      className="flex items-center gap-2 text-red-500 border border-red-300 px-3 py-1 rounded-md text-sm hover:bg-red-50 transition"
+                    >
+                      <FaTrash /> Delete
+                    </button>
+                  </div>
+                </div>
+              </details>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
 export default Inbox;
-
- 
-
-
